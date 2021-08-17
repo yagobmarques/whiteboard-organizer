@@ -80,7 +80,8 @@ class QuadroDAO {
     return await dbContact.update(Quadro.quadroTable, q.toMap(),
         where: "${Quadro.idColumn} = ?", whereArgs: [q.id]);
   }
-   Future<List> buscaTodosQuadros() async {
+
+  Future<List> buscaTodosQuadros() async {
     Database dbContact = await db;
     // dbContact.execute(
     //       // Criando a tabela de contato
@@ -92,13 +93,15 @@ class QuadroDAO {
     //       "                                 ${Quadro.dataColumn} DATE, "
     //       "                                 ${Quadro.anotacaoColumn} TEXT, "
     //       "                                 ${Quadro.imgColumn} TEXT) ;");
-    List listMap = await dbContact.query(Quadro.quadroTable); //Retorna todas as Tuplas
+    List listMap =
+        await dbContact.query(Quadro.quadroTable); //Retorna todas as Tuplas
     List<Quadro> listQuadros = List();
     for (Map m in listMap) {
       listQuadros.add(Quadro.fromMap(m));
     }
     return listQuadros;
   }
+
   Future<List> buscaQuadrosPelaDisciplina(int id) async {
     Database dbContact = await db;
     List<Quadro> listQuadros = List();
@@ -115,15 +118,64 @@ class QuadroDAO {
         ],
         where: "${Quadro.disciplinaColumn} = ?",
         whereArgs: [id]); // Filtrando a busca pelo ID
-     for (Map m in maps) {
+    for (Map m in maps) {
       listQuadros.add(Quadro.fromMap(m));
     }
     return listQuadros;
   }
 
-    Future<int> pegaTamanho() async {
+  Future<List> buscaUltimosQuadros(int limit) async {
     Database dbContact = await db;
-    return Sqflite.firstIntValue(await dbContact
-        .rawQuery("select count(*) from ${Quadro.quadroTable}")); //Retorna a quantidade de tuplas
+    List<Quadro> listQuadros = List();
+    List<Map> maps = await dbContact.query(
+      Quadro.quadroTable,
+      columns: [
+        Quadro.idColumn,
+        Quadro.nameColumn,
+        Quadro.imgColumn,
+        Quadro.aulaColumn,
+        Quadro.copiadoColumn,
+        Quadro.dataColumn,
+        Quadro.disciplinaColumn,
+        Quadro.anotacaoColumn
+      ],
+      orderBy: "${Quadro.dataColumn} desc",
+      limit: limit,
+    ); // Filtrando a busca pelo ID
+    for (Map m in maps) {
+      listQuadros.add(Quadro.fromMap(m));
+    }
+    return listQuadros;
+  }
+
+    Future<List> buscaQuadrosNaoCopiados(int limit) async {
+    Database dbContact = await db;
+    List<Quadro> listQuadros = List();
+    List<Map> maps = await dbContact.query(
+      Quadro.quadroTable,
+      columns: [
+        Quadro.idColumn,
+        Quadro.nameColumn,
+        Quadro.imgColumn,
+        Quadro.aulaColumn,
+        Quadro.copiadoColumn,
+        Quadro.dataColumn,
+        Quadro.disciplinaColumn,
+        Quadro.anotacaoColumn
+      ],
+      orderBy: "${Quadro.dataColumn} desc",
+      where: "${Quadro.copiadoColumn} != 1",
+      limit: limit,
+    ); // Filtrando a busca pelo ID
+    for (Map m in maps) {
+      listQuadros.add(Quadro.fromMap(m));
+    }
+    return listQuadros;
+  }
+
+  Future<int> pegaTamanho() async {
+    Database dbContact = await db;
+    return Sqflite.firstIntValue(await dbContact.rawQuery(
+        "select count(*) from ${Quadro.quadroTable}")); //Retorna a quantidade de tuplas
   }
 }

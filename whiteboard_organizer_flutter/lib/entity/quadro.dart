@@ -30,7 +30,7 @@ class Quadro {
     this.disciplina = map[disciplinaColumn];
     this.aula = map[aulaColumn];
     this.copiado= map[copiadoColumn];
-    //this.data = map[dataColumn];
+    this.data = map[dataColumn] != null ? DateTime.parse(map[dataColumn]) : null;
     this.anotacao = map[anotacaoColumn];
     
   }
@@ -43,7 +43,7 @@ class Quadro {
       disciplinaColumn: this.disciplina,
       aulaColumn: this.aula,
       copiadoColumn: this.copiado,
-      //dataColumn: this.data.toString(),
+      dataColumn: this.data.toString(),
       anotacaoColumn: this.anotacao
     };
     return map;

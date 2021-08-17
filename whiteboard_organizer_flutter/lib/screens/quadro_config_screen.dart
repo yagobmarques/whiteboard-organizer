@@ -37,10 +37,10 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
       // Se n estiver criado, crie um
       _quadroEditado = Quadro();
     } else {
-      _quadroEditado = Quadro.fromMap(widget.quadro.toMap());
+      _quadroEditado = widget.quadro;
       nomeController.text = _quadroEditado.name;
       anotacaoController.text = _quadroEditado.anotacao;
-      //selectedDate = _quadroEditado.data;
+      selectedDate = _quadroEditado.data;
       copiado = _quadroEditado.copiado;
     }
     materiaController.text = widget.materia.name;
@@ -50,7 +50,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
     _usuarioEditou = true;
     final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: selectedDate,
+        initialDate: selectedDate != null ? selectedDate : new DateTime.now(),
         firstDate: DateTime(1900, 1),
         lastDate: DateTime(2101));
     if (picked != null)
@@ -197,7 +197,8 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
-                    "Criado em ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                    selectedDate != null ?
+                    "Criado em ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}" : "Escolha uma data",
                     style: TextStyle(fontSize: 20),
                   ),
                   RaisedButton(
