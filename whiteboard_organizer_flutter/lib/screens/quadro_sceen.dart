@@ -8,6 +8,7 @@ import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro_imagem.dart';
 import 'package:whiteboard_organizer_flutter/screens/ver_quadro_screen.dart';
+import 'package:whiteboard_organizer_flutter/widgets/quadro_card_s_tap.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_foto_card.dart';
 
 class QuadroScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _QuadroScreenState extends State<QuadroScreen> {
               itemBuilder: (context, index, key) {
                 // return QuadroFotoCard(fotos[index].img, _verImagem(fotos[index].img), index);
                 return InkWell(
-                  onDoubleTap: () {
+                  onTap: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -90,7 +91,7 @@ class _QuadroScreenState extends State<QuadroScreen> {
                                 VerQuadroScreen(fotos[index].img)));
                   },
                   child:
-                      Ink(child: QuadroFotoCard(fotos[index].img, null, index)),
+                      Ink(child: QuadroFotoCardSTap(fotos[index].img, index)),
                 );
 
                 // return GestureDetector(
