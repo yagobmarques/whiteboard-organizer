@@ -6,6 +6,7 @@ import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
 import 'package:whiteboard_organizer_flutter/screens/materia_config_screen.dart';
 import 'package:whiteboard_organizer_flutter/screens/materia_screen.dart';
+import 'package:whiteboard_organizer_flutter/screens/quadro_sceen.dart';
 import 'package:whiteboard_organizer_flutter/widgets/materia_card.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_card.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_home_card.dart';
@@ -136,7 +137,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 itemCount: quadros.length,
                 itemBuilder: (context, index, key) {
-                  return QuadroHomeCard(this.quadros, index, null, null);
+                  return QuadroHomeCard(this.quadros, index, null, _showQuadroPage);
                 },
               )
             ],
@@ -163,7 +164,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 itemCount: quadrosNaoCopiados.length,
                 itemBuilder: (context, index, key) {
-                  return QuadroHomeCard(this.quadrosNaoCopiados, index, null, null);
+                  return QuadroHomeCard(this.quadrosNaoCopiados, index, null, _showQuadroPage);
                 },
               )
             ],
@@ -174,20 +175,8 @@ class _HomeTabState extends State<HomeTab> {
   }
   
   void _showQuadroPage({Quadro quadro}) async {
-    // Materia materiaRet = await Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) => MateriaScreen()));
-    // Quadro quadroRet = await Navigator.push(
-    // //     context, MaterialPageRoute(builder: (context) => MateriaConfigScreen(materia)));
-     
-    // if (materiaRet != null) {
-    //   print(materiaRet.id);
-    //   if (materiaRet.id == null)
-    //     await materiaDAO.inserirMateria(materiaRet);
-    //   else
-    //     await materiaDAO.alterarMateria(materiaRet);
-
+    Quadro quadroRet = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => QuadroScreen(quadro)));
       updateList();
     }
 

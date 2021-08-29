@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:whiteboard_organizer_flutter/dao/quadroDAO.dart';
+import 'package:whiteboard_organizer_flutter/dao/quadro_imagemDAO.dart';
 import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
+import 'package:whiteboard_organizer_flutter/entity/quadro_imagem.dart';
+import 'package:whiteboard_organizer_flutter/widgets/quadro_foto_card.dart';
 
 class QuadroConfigScreen extends StatefulWidget {
   Quadro quadro;
@@ -17,12 +21,14 @@ class QuadroConfigScreen extends StatefulWidget {
 }
 
 class _QuadroScreenState extends State<QuadroConfigScreen> {
+  QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
   Quadro _quadroEditado;
   bool _usuarioEditou;
   final _nomeFocus = FocusNode();
   DateTime selectedDate = DateTime.now();
   int copiado = 1;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<QuadroImagem> fotos = List<QuadroImagem>();
 
   TextEditingController nomeController = TextEditingController();
   TextEditingController anotacaoController = TextEditingController();
@@ -31,7 +37,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
   TextEditingController copiadoController = TextEditingController();
   TextEditingController materiaController = TextEditingController();
 
-  void initState() {
+  Future<void> initState() {
     super.initState();
     if (widget.quadro == null) {
       // Se n estiver criado, crie um
@@ -42,10 +48,27 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
       anotacaoController.text = _quadroEditado.anotacao;
       selectedDate = _quadroEditado.data;
       copiado = _quadroEditado.copiado;
+      carregaImages(_quadroEditado.id);
+      // quadroImagemDAO
+      //     .buscaImagensPeloQuadro(_quadroEditado.id)
+      //     .whenComplete((listFotos) => () {
+      //       print(listFotos);
+      //           fotos = listFotos;
+      //         });
+      //fotos = await quadroImagemDAO.buscaImagensPeloQuadro(_quadroEditado.id);
+      if (fotos == null) {
+        fotos = List();
+      }
     }
     materiaController.text = widget.materia.name;
   }
+   carregaImages(int id) async{
 
+     QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
+     fotos = await quadroImagemDAO.buscaImagensPeloQuadro(id);
+     setState(() {});
+     return;
+  }
   Future<void> _selectDate(BuildContext context) async {
     _usuarioEditou = true;
     final DateTime picked = await showDatePicker(
@@ -100,18 +123,22 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
           title: Text(_quadroEditado.name ?? "Novo quadro"),
           centerTitle: true,
           actions: [
-            IconButton(icon: Icon(Icons.delete), onPressed: (){
-              QuadroDAO quadroDAO = QuadroDAO();
-              if(this._quadroEditado.id != null){
-                quadroDAO.removerQuadro(_quadroEditado.id);
-              }
-              Navigator.of(context).pop();
-            })
+            IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  QuadroDAO quadroDAO = QuadroDAO();
+                  if (this._quadroEditado.id != null) {
+                    quadroDAO.removerQuadro(_quadroEditado.id);
+                  }
+                  Navigator.pop(context);
+                })
           ],
         ),
         key: _scaffoldKey,
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
+          onPressed: () async {
+             QuadroDAO quadroDAO = QuadroDAO();
+            QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
             _quadroEditado.copiado = this.copiado;
             _quadroEditado.disciplina = widget.materia.id;
             _quadroEditado.data = DateTime.parse(selectedDate.toString());
@@ -126,8 +153,28 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
               ));
             } else if (_quadroEditado.name != null &&
                 _quadroEditado.name.isNotEmpty) {
+             
+              if (_quadroEditado.id == null){
+               Quadro resultado =  await quadroDAO.inserirQuadro(_quadroEditado);
+               _quadroEditado.id = resultado.id;
+               for(QuadroImagem qi in fotos){
+                 qi.idQuadro = resultado.id;
+                  await quadroImagemDAO.inserirMateriaQuadro(qi);
+               }
+              
+              }else {
+                await quadroDAO.alterarQuadro(_quadroEditado);
+                for(QuadroImagem qi in fotos){
+                  if(qi.idQuadro != null){
+                    await quadroImagemDAO.alterarQuadroImagem(qi);
+                  }
+                  else{
+                    qi.idQuadro = _quadroEditado.id;
+                    await quadroImagemDAO.inserirMateriaQuadro(qi);
+                  }
+                }
               Navigator.pop(context, _quadroEditado);
-            } else {
+            }} else {
               FocusScope.of(context).requestFocus(_nomeFocus);
             }
           },
@@ -138,19 +185,48 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
           padding: EdgeInsets.all(20),
           child: Column(
             children: <Widget>[
-              GestureDetector(
-                child: Container(
-                  width: 400,
-                  height: 400,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: _quadroEditado.img != null
-                              ? FileImage(File(_quadroEditado.img))
-                              : AssetImage("Images/user.png"))),
+              // GestureDetector(
+              //   child: Container(
+              //     width: 400,
+              //     height: 400,
+              //     decoration: BoxDecoration(
+              //         shape: BoxShape.circle,
+              //         image: DecorationImage(
+              //             image: _quadroEditado.img != null
+              //                 ? FileImage(File(_quadroEditado.img))
+              //                 : AssetImage("Images/user.png"))),
+              //   ),
+              //   onTap: () {
+              //     _escolherImagem();
+              //   },
+              // ),
+              CarouselSlider.builder(
+                options: CarouselOptions(
+                  height: 270.0,
+                  viewportFraction: 0.5,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
                 ),
-                onTap: () {
-                  _escolherImagem();
+                itemCount: fotos != null ? fotos.length + 1 : 1,
+                itemBuilder: (context, index, key) {
+                  if (index == fotos.length) {
+                    return InkWell(
+                      onTap: () {
+                        _escolherImagem();
+                      },
+                      child: Ink(
+                          width: 200,
+                          decoration: BoxDecoration(color: Colors.grey),
+                          child: Stack(alignment: Alignment.center, children: [
+                            Icon(
+                              Icons.add_rounded,
+                              size: 100,
+                            )
+                          ])),
+                    );
+                  }
+                  return QuadroFotoCard(
+                      fotos[index].img, _escolherImagem, index);
                 },
               ),
               TextField(
@@ -197,8 +273,9 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
-                    selectedDate != null ?
-                    "Criado em ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}" : "Escolha uma data",
+                    selectedDate != null
+                        ? "Criado em ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"
+                        : "Escolha uma data",
                     style: TextStyle(fontSize: 20),
                   ),
                   RaisedButton(
@@ -223,9 +300,9 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                         setState(() {
                           _usuarioEditou = true;
                           int value = 0;
-                          if(newValue == true){
+                          if (newValue == true) {
                             value = 1;
-                          } 
+                          }
                           copiado = value;
                         });
                       }),
@@ -238,7 +315,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
     );
   }
 
-  void _escolherImagem() {
+  void _escolherImagem({int index}) {
     showDialog(
         context: context,
         builder: (context) {
@@ -258,7 +335,14 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                           return;
                         } else {
                           setState(() {
-                            _quadroEditado.img = file.path;
+                            if (index != null) {
+                              fotos[index].img = file.path;
+                            } else {
+                              QuadroImagem quadroImagem = QuadroImagem();
+                              quadroImagem.img = file.path;
+                              fotos.add(quadroImagem);
+                              _quadroEditado.img = file.path;
+                            }
                           });
                         }
                       });
@@ -280,7 +364,14 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                           return;
                         } else {
                           setState(() {
-                            _quadroEditado.img = file.path;
+                            if (index != null) {
+                              fotos[index].img = file.path;
+                            } else {
+                              QuadroImagem quadroImagem = QuadroImagem();
+                              quadroImagem.img = file.path;
+                              fotos.add(quadroImagem);
+                              _quadroEditado.img = file.path;
+                            }
                           });
                         }
                       });

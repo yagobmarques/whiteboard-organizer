@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
+import 'package:whiteboard_organizer_flutter/dao/materiaDAO.dart';
 import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 
 class MateriaConfigScreen extends StatefulWidget {
@@ -69,9 +70,19 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
       onWillPop: _requestPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_materiaEditada.name ?? "Nova matéria"),
-          centerTitle: true,
-        ),
+            title: Text(_materiaEditada.name ?? "Nova matéria"),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    MateriaDAO materiaDAO = MateriaDAO();
+                    if (this._materiaEditada.id != null) {
+                      materiaDAO.removerMateria(_materiaEditada.id);
+                    }
+                    Navigator.of(context).pop();
+                  })
+            ]),
         key: _scaffoldKey,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -101,9 +112,7 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
               TextField(
                 controller: nomeController,
                 focusNode: _nomeFocus,
-                style: TextStyle(
-                  fontSize:30
-                ),
+                style: TextStyle(fontSize: 30),
                 decoration: InputDecoration(labelText: "Nome"),
                 onChanged: (text) {
                   _usuarioEditou = true;

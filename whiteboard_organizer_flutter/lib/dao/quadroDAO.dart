@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
+import 'package:whiteboard_organizer_flutter/entity/quadro_imagem.dart';
 
 class QuadroDAO {
   // Usando o padrão Singleton
@@ -71,6 +72,8 @@ class QuadroDAO {
 
   Future<int> removerQuadro(int id) async {
     Database dbContact = await db;
+    await dbContact.delete(QuadroImagem.quadroImagemTable,
+      where: "${QuadroImagem.idQuadroColumn} = ?", whereArgs: [id]); // Deletando todas as imagens desse quadro
     return await dbContact.delete(Quadro.quadroTable,
         where: "${Quadro.idColumn} = ?", whereArgs: [id]); //Filtrando pelo id
   }

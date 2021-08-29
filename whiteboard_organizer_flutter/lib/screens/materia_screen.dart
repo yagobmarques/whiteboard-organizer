@@ -4,6 +4,7 @@ import 'package:whiteboard_organizer_flutter/dao/quadroDAO.dart';
 import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
 import 'package:whiteboard_organizer_flutter/screens/quadro_config_screen.dart';
+import 'package:whiteboard_organizer_flutter/screens/quadro_sceen.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_card.dart';
 
 class MateriaScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _MateriaScreenState extends State<MateriaScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-           _showQuadroPage(widget.materia);
+           _showQuadroConfigPage(widget.materia);
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blueGrey,
@@ -78,7 +79,7 @@ class _MateriaScreenState extends State<MateriaScreen> {
                     child: Text("Sem quadros cadastrados"),
                   );
                 } else if (index != quadros.length){
-                  return QuadroCard(quadros, index, _showQuadroPage, null, widget.materia);
+                  return QuadroCard(quadros, index, _showQuadroConfigPage, _showQuadroPage, widget.materia);
                 }
                 return Container();
               },
@@ -89,7 +90,7 @@ class _MateriaScreenState extends State<MateriaScreen> {
     );
   }
 
-  void _showQuadroPage( Materia materia, {Quadro quadro}) async {
+  void _showQuadroConfigPage( Materia materia, {Quadro quadro}) async {
     Quadro quadroRet = await Navigator.push(context,
         MaterialPageRoute(builder: (context) => QuadroConfigScreen(quadro, materia: materia)));
     if (quadroRet != null) {
@@ -101,4 +102,9 @@ class _MateriaScreenState extends State<MateriaScreen> {
     }
       updateList();
   }
+    void _showQuadroPage({Quadro quadro}) async {
+    Quadro quadroRet = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => QuadroScreen(quadro)));
+      updateList();
+    }
 }

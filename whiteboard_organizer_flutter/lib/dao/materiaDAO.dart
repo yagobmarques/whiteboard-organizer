@@ -1,7 +1,9 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:whiteboard_organizer_flutter/dao/quadroDAO.dart';
 import 'package:whiteboard_organizer_flutter/entity/materia.dart';
 import 'package:whiteboard_organizer_flutter/entity/quadro.dart';
+import 'package:whiteboard_organizer_flutter/entity/quadro_imagem.dart';
 
 class MateriaDAO {
   // Usando o padrão Singleton
@@ -39,6 +41,11 @@ class MateriaDAO {
           "                                 ${Quadro.dataColumn} DATE, "
           "                                 ${Quadro.anotacaoColumn} TEXT, "
           "                                 ${Quadro.imgColumn} TEXT) ;");
+      await db.execute(
+          // Criando a tabela de contato
+          "CREATE TABLE ${QuadroImagem.quadroImagemTable}(${QuadroImagem.idColumn} INTEGER PRIMARY KEY, "
+          "                                 ${QuadroImagem.idQuadroColumn} INTEGER REFERENCES ${Quadro.quadroTable}, "
+          "                                 ${QuadroImagem.imgColumn});");
     });
   }
 
@@ -52,11 +59,7 @@ class MateriaDAO {
   Future<Materia> buscaMateriaPeloId(int id) async {
     Database dbContact = await db;
     List<Map> maps = await dbContact.query(Materia.materiaTable,
-        columns: [
-          Materia.idColumn,
-          Materia.nameColumn,
-          Materia.imgColumn
-        ],
+        columns: [Materia.idColumn, Materia.nameColumn, Materia.imgColumn],
         where: "${Materia.idColumn} = ?",
         whereArgs: [id]); // Filtrando a busca pelo ID
 
@@ -68,7 +71,14 @@ class MateriaDAO {
   }
 
   Future<int> removerMateria(int id) async {
+    QuadroDAO quadroDAO = QuadroDAO();
     Database dbContact = await db;
+    // await dbContact.delete(Quadro.quadroTable,
+    // where: "${Quadro.disciplinaColumn} = ?", whereArgs: [id]);
+    List quadros = await quadroDAO.buscaQuadrosPelaDisciplina(id);
+    for (Quadro q in quadros) {
+      quadroDAO.removerQuadro(q.id);
+    }
     return await dbContact.delete(Materia.materiaTable,
         where: "${Materia.idColumn} = ?", whereArgs: [id]); //Filtrando pelo id
   }
@@ -78,18 +88,21 @@ class MateriaDAO {
     return await dbContact.update(Materia.materiaTable, m.toMap(),
         where: "${Materia.idColumn} = ?", whereArgs: [m.id]);
   }
-   Future<List> buscaTodasMaterias() async {
+
+  Future<List> buscaTodasMaterias() async {
     Database dbContact = await db;
-    List listMap = await dbContact.query(Materia.materiaTable); //Retorna todas as Tuplas
+    List listMap =
+        await dbContact.query(Materia.materiaTable); //Retorna todas as Tuplas
     List<Materia> listContacts = List();
     for (Map m in listMap) {
       listContacts.add(Materia.fromMap(m));
     }
     return listContacts;
   }
-    Future<int> pegaTamanho() async {
+
+  Future<int> pegaTamanho() async {
     Database dbContact = await db;
-    return Sqflite.firstIntValue(await dbContact
-        .rawQuery("select count(*) from ${Materia.materiaTable}")); //Retorna a quantidade de tuplas
+    return Sqflite.firstIntValue(await dbContact.rawQuery(
+        "select count(*) from ${Materia.materiaTable}")); //Retorna a quantidade de tuplas
   }
 }

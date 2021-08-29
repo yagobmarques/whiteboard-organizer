@@ -19,8 +19,7 @@ class QuadroCard extends StatelessWidget {
       height: 70,
       child: InkWell(
         onTap: () {
-          // Navigator.of(context).push(
-          // MaterialPageRoute(builder: (context)=>SupplierScreen(snapshot))
+          this.onTap(quadro: this.quadros[index]);
         },
         onLongPress: (){
           onLongPress(materia, quadro: quadros[index]);
