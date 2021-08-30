@@ -65,7 +65,7 @@ class _QuadroScreenState extends State<QuadroScreen> {
         label: Text(widget.quadro.copiado == 1
             ? "Não passar a limpo"
             : "Passar a limpo"),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.purpleAccent,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: SingleChildScrollView(

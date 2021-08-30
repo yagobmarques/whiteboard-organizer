@@ -62,20 +62,31 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
     }
     materiaController.text = widget.materia.name;
   }
-   carregaImages(int id) async{
 
-     QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
-     fotos = await quadroImagemDAO.buscaImagensPeloQuadro(id);
-     setState(() {});
-     return;
+  carregaImages(int id) async {
+    QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
+    fotos = await quadroImagemDAO.buscaImagensPeloQuadro(id);
+    setState(() {});
+    return;
   }
+
   Future<void> _selectDate(BuildContext context) async {
     _usuarioEditou = true;
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate != null ? selectedDate : new DateTime.now(),
         firstDate: DateTime(1900, 1),
-        lastDate: DateTime(2101));
+        lastDate: DateTime(2101),
+        builder: (BuildContext context, Widget child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light().copyWith(
+                primary: Colors.purple,
+              ),
+            ),
+            child: child,
+          );
+        });
     if (picked != null)
       setState(() {
         selectedDate = picked;
@@ -93,12 +104,12 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
               content: Text("Os dados serão perdidos."),
               actions: <Widget>[
                 FlatButton(
-                    child: Text("cancelar"),
+                    child: Text("Cancelar"),
                     onPressed: () {
                       Navigator.pop(context);
                     }),
                 FlatButton(
-                  child: Text("sim"),
+                  child: Text("Sim"),
                   onPressed: () {
                     //desempilha 2x
                     Navigator.pop(context);
@@ -120,6 +131,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
       onWillPop: _requestPop,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.purple,
           title: Text(_quadroEditado.name ?? "Novo quadro"),
           centerTitle: true,
           actions: [
@@ -137,7 +149,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
         key: _scaffoldKey,
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-             QuadroDAO quadroDAO = QuadroDAO();
+            QuadroDAO quadroDAO = QuadroDAO();
             QuadroImagemDAO quadroImagemDAO = QuadroImagemDAO();
             _quadroEditado.copiado = this.copiado;
             _quadroEditado.disciplina = widget.materia.id;
@@ -153,33 +165,32 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
               ));
             } else if (_quadroEditado.name != null &&
                 _quadroEditado.name.isNotEmpty) {
-             
-              if (_quadroEditado.id == null){
-               Quadro resultado =  await quadroDAO.inserirQuadro(_quadroEditado);
-               _quadroEditado.id = resultado.id;
-               for(QuadroImagem qi in fotos){
-                 qi.idQuadro = resultado.id;
+              if (_quadroEditado.id == null) {
+                Quadro resultado =
+                    await quadroDAO.inserirQuadro(_quadroEditado);
+                _quadroEditado.id = resultado.id;
+                for (QuadroImagem qi in fotos) {
+                  qi.idQuadro = resultado.id;
                   await quadroImagemDAO.inserirMateriaQuadro(qi);
-               }
-              
-              }else {
+                }
+              } else {
                 await quadroDAO.alterarQuadro(_quadroEditado);
-                for(QuadroImagem qi in fotos){
-                  if(qi.idQuadro != null){
+                for (QuadroImagem qi in fotos) {
+                  if (qi.idQuadro != null) {
                     await quadroImagemDAO.alterarQuadroImagem(qi);
-                  }
-                  else{
+                  } else {
                     qi.idQuadro = _quadroEditado.id;
                     await quadroImagemDAO.inserirMateriaQuadro(qi);
                   }
                 }
-              Navigator.pop(context, _quadroEditado);
-            }} else {
+                Navigator.pop(context, _quadroEditado);
+              }
+            } else {
               FocusScope.of(context).requestFocus(_nomeFocus);
             }
           },
           child: Icon(Icons.save),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.purple,
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(20),
@@ -229,11 +240,26 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                       fotos[index].img, _escolherImagem, index);
                 },
               ),
+              Padding(padding: EdgeInsets.only(bottom: 30)),
               TextField(
+                cursorColor: Colors.black,
                 controller: nomeController,
                 focusNode: _nomeFocus,
-                style: TextStyle(fontSize: 25),
-                decoration: InputDecoration(labelText: "Nome"),
+                style: TextStyle(fontSize: 20),
+                decoration: new InputDecoration(
+                  labelText: "Nome do quadro",
+                  labelStyle: TextStyle(color: Colors.purple),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderSide: BorderSide(color: Colors.purple),
+                  ),
+                ),
                 onChanged: (text) {
                   _usuarioEditou = true;
                   setState(() {
@@ -243,11 +269,25 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
               ),
               Padding(padding: EdgeInsets.only(bottom: 15)),
               TextField(
+                cursorColor: Colors.black,
                 controller: anotacaoController,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
                 style: TextStyle(fontSize: 20),
-                decoration: InputDecoration(labelText: "Anotação (Opcional)"),
+                decoration: InputDecoration(
+                  labelText: "Anotação (opcional)",
+                  labelStyle: TextStyle(color: Colors.purple),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderSide: BorderSide(color: Colors.purple),
+                  ),
+                ),
                 onChanged: (text) {
                   _usuarioEditou = true;
                   setState(() {
@@ -257,10 +297,24 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
               ),
               Padding(padding: EdgeInsets.only(bottom: 15)),
               TextField(
+                cursorColor: Colors.black,
                 controller: materiaController,
                 enabled: false,
                 style: TextStyle(fontSize: 20),
-                decoration: InputDecoration(labelText: "Matéria"),
+                decoration: InputDecoration(
+                  labelText: "Nome da matéria",
+                  labelStyle: TextStyle(color: Colors.purple),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderSide: BorderSide(color: Colors.purple),
+                  ),
+                ),
                 onChanged: (text) {
                   _usuarioEditou = true;
                   setState(() {
@@ -279,7 +333,7 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                     style: TextStyle(fontSize: 20),
                   ),
                   RaisedButton(
-                    color: Colors.blueGrey,
+                    color: Colors.purpleAccent,
                     child: Icon(Icons.date_range),
                     onPressed: () => _selectDate(context),
                   ),
@@ -295,11 +349,11 @@ class _QuadroScreenState extends State<QuadroConfigScreen> {
                   ),
                   Switch(
                       value: copiado == 1,
-                      activeColor: Colors.blueGrey,
+                      activeColor: Colors.purpleAccent,
                       onChanged: (newValue) {
                         setState(() {
                           _usuarioEditou = true;
-                          int value = 0;
+                          int value = 1;
                           if (newValue == true) {
                             value = 1;
                           }

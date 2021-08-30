@@ -43,12 +43,12 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
               content: Text("Os dados serão perdidos."),
               actions: <Widget>[
                 FlatButton(
-                    child: Text("cancelar"),
+                    child: Text("Cancelar"),
                     onPressed: () {
                       Navigator.pop(context);
                     }),
                 FlatButton(
-                  child: Text("sim"),
+                  child: Text("Sim"),
                   onPressed: () {
                     //desempilha 2x
                     Navigator.pop(context);
@@ -70,6 +70,7 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
       onWillPop: _requestPop,
       child: Scaffold(
         appBar: AppBar(
+            backgroundColor: Colors.purple,
             title: Text(_materiaEditada.name ?? "Nova matéria"),
             centerTitle: true,
             actions: [
@@ -92,7 +93,7 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
                   "Adicione uma imagem",
                   style: TextStyle(fontSize: 15),
                 ),
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.purple,
                 duration: Duration(seconds: 2),
               ));
             } else if (_materiaEditada.name != null &&
@@ -103,17 +104,31 @@ class _MateriaScreenState extends State<MateriaConfigScreen> {
             }
           },
           child: Icon(Icons.save),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.purple,
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(20),
           child: Column(
             children: <Widget>[
               TextField(
+                cursorColor: Colors.black,
                 controller: nomeController,
                 focusNode: _nomeFocus,
-                style: TextStyle(fontSize: 30),
-                decoration: InputDecoration(labelText: "Nome"),
+                style: TextStyle(fontSize: 26),
+                decoration: new InputDecoration(
+                  labelText: "Nome da matéria",
+                  labelStyle: TextStyle(color: Colors.purple),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderSide: BorderSide(color: Colors.purple),
+                  ),
+                ),
                 onChanged: (text) {
                   _usuarioEditou = true;
                   setState(() {

@@ -35,24 +35,27 @@ class _MateriaScreenState extends State<MateriaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.purple,
         title: Text(widget.materia.name),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-           _showQuadroConfigPage(widget.materia);
+          _showQuadroConfigPage(widget.materia);
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.purple,
       ),
       body: Container(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
             new TextField(
+              cursorColor: Colors.black,
               decoration: new InputDecoration(
-                prefixIcon: new Icon(Icons.search),
+                prefixIcon: new Icon(Icons.search, color: Colors.purple),
                 labelText: "Pequise um quadro",
+                labelStyle: TextStyle(color: Colors.purple),
                 enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   borderSide: const BorderSide(
@@ -61,7 +64,7 @@ class _MateriaScreenState extends State<MateriaScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                  borderSide: BorderSide(color: Colors.blue),
+                  borderSide: BorderSide(color: Colors.purple),
                 ),
               ),
             ),
@@ -76,10 +79,12 @@ class _MateriaScreenState extends State<MateriaScreen> {
               itemBuilder: (BuildContext context, int index) {
                 if (quadros.length == 0) {
                   return Center(
-                    child: Text("Sem quadros cadastrados"),
+                    child: Text("Sem quadros cadastrados :(",
+                        style: TextStyle(fontSize: 18)),
                   );
-                } else if (index != quadros.length){
-                  return QuadroCard(quadros, index, _showQuadroConfigPage, _showQuadroPage, widget.materia);
+                } else if (index != quadros.length) {
+                  return QuadroCard(quadros, index, _showQuadroConfigPage,
+                      _showQuadroPage, widget.materia);
                 }
                 return Container();
               },
@@ -90,9 +95,12 @@ class _MateriaScreenState extends State<MateriaScreen> {
     );
   }
 
-  void _showQuadroConfigPage( Materia materia, {Quadro quadro}) async {
-    Quadro quadroRet = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => QuadroConfigScreen(quadro, materia: materia)));
+  void _showQuadroConfigPage(Materia materia, {Quadro quadro}) async {
+    Quadro quadroRet = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                QuadroConfigScreen(quadro, materia: materia)));
     if (quadroRet != null) {
       print(quadroRet.id);
       if (quadroRet.id == null)
@@ -100,11 +108,12 @@ class _MateriaScreenState extends State<MateriaScreen> {
       else
         await quadroDAO.alterarQuadro(quadroRet);
     }
-      updateList();
+    updateList();
   }
-    void _showQuadroPage({Quadro quadro}) async {
+
+  void _showQuadroPage({Quadro quadro}) async {
     Quadro quadroRet = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => QuadroScreen(quadro)));
-      updateList();
-    }
+    updateList();
+  }
 }
