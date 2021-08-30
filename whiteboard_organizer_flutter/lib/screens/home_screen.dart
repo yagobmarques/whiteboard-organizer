@@ -10,8 +10,8 @@ import 'package:whiteboard_organizer_flutter/screens/quadro_sceen.dart';
 import 'package:whiteboard_organizer_flutter/widgets/materia_card.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_card.dart';
 import 'package:whiteboard_organizer_flutter/widgets/quadro_home_card.dart';
-class HomeTab extends StatefulWidget {
 
+class HomeTab extends StatefulWidget {
   @override
   _HomeTabState createState() => _HomeTabState();
 }
@@ -33,10 +33,10 @@ class _HomeTabState extends State<HomeTab> {
     materiaDAO.buscaTodasMaterias().then((list) {
       setState(() => materias = list);
     });
-     quadroDAO.buscaUltimosQuadros(10).then((list) {
+    quadroDAO.buscaUltimosQuadros(10).then((list) {
       setState(() => quadros = list);
     });
-      quadroDAO.buscaQuadrosNaoCopiados(25).then((list) {
+    quadroDAO.buscaQuadrosNaoCopiados(25).then((list) {
       setState(() => quadrosNaoCopiados = list);
     });
   }
@@ -45,21 +45,26 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-            title: Text("Pagina Inicial"),
-            centerTitle: true,
-            actions: [
-              IconButton(icon: Icon(Icons.replay_outlined), onPressed: (){
+        backgroundColor: Colors.purple,
+        title: Text("Whiteboard Organizer"),
+        centerTitle: true,
+        actions: [
+          IconButton(
+              icon: Icon(Icons.replay_outlined),
+              onPressed: () {
                 updateList();
               })
-            ],
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.all(20),
         children: [
           new TextField(
+            cursorColor: Colors.black,
             decoration: new InputDecoration(
-              prefixIcon: new Icon(Icons.search),
+              prefixIcon: new Icon(Icons.search, color: Colors.purple),
               labelText: "Pequise um quadro",
+              labelStyle: TextStyle(color: Colors.purple),
               enabledBorder: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(20.0)),
                 borderSide: const BorderSide(
@@ -68,7 +73,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                borderSide: BorderSide(color: Colors.blue),
+                borderSide: BorderSide(color: Colors.purple),
               ),
             ),
           ),
@@ -80,7 +85,7 @@ class _HomeTabState extends State<HomeTab> {
             children: [
               Text(
                 "Matérias",
-                style: TextStyle(fontSize: 30),
+                style: TextStyle(fontSize: 26),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 15),
@@ -102,15 +107,16 @@ class _HomeTabState extends State<HomeTab> {
                       child: Ink(
                           width: 200,
                           decoration: BoxDecoration(color: Colors.grey),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children : [
-                              Icon(Icons.add_rounded, size: 100,)
-                            ]                  
-                          )),
+                          child: Stack(alignment: Alignment.center, children: [
+                            Icon(
+                              Icons.add_rounded,
+                              size: 100,
+                            )
+                          ])),
                     );
                   }
-                  return MateriaCard(this.materias, index, _showMateriaPage, _showMateriaQuadroPage);
+                  return MateriaCard(this.materias, index, _showMateriaPage,
+                      _showMateriaQuadroPage);
                 },
               )
             ],
@@ -123,7 +129,7 @@ class _HomeTabState extends State<HomeTab> {
             children: [
               Text(
                 "Últimos quadros",
-                style: TextStyle(fontSize: 30),
+                style: TextStyle(fontSize: 26),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 15),
@@ -137,7 +143,8 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 itemCount: quadros.length,
                 itemBuilder: (context, index, key) {
-                  return QuadroHomeCard(this.quadros, index, null, _showQuadroPage);
+                  return QuadroHomeCard(
+                      this.quadros, index, null, _showQuadroPage);
                 },
               )
             ],
@@ -152,7 +159,7 @@ class _HomeTabState extends State<HomeTab> {
                 "Não copiados",
                 style: TextStyle(fontSize: 30),
               ),
-                            Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 15),
               ),
               CarouselSlider.builder(
@@ -164,7 +171,8 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 itemCount: quadrosNaoCopiados.length,
                 itemBuilder: (context, index, key) {
-                  return QuadroHomeCard(this.quadrosNaoCopiados, index, null, _showQuadroPage);
+                  return QuadroHomeCard(
+                      this.quadrosNaoCopiados, index, null, _showQuadroPage);
                 },
               )
             ],
@@ -173,21 +181,21 @@ class _HomeTabState extends State<HomeTab> {
       ),
     );
   }
-  
+
   void _showQuadroPage({Quadro quadro}) async {
     Quadro quadroRet = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => QuadroScreen(quadro)));
-      updateList();
-    }
+    updateList();
+  }
 
   void _showMateriaPage({Materia materia}) async {
     // Materia materiaRet = await Navigator.push(
     //     context,
     //     MaterialPageRoute(
     //         builder: (context) => MateriaScreen()));
-    Materia materiaRet = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => MateriaConfigScreen(materia)));
-     
+    Materia materiaRet = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MateriaConfigScreen(materia)));
+
     if (materiaRet != null) {
       print(materiaRet.id);
       if (materiaRet.id == null)
@@ -198,20 +206,21 @@ class _HomeTabState extends State<HomeTab> {
       updateList();
     }
   }
+
   void _showMateriaQuadroPage({Materia materia}) async {
     // Materia materiaRet = await Navigator.push(
     //     context,
     //     MaterialPageRoute(
     //         builder: (context) => MateriaScreen()));
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => MateriaScreen(materia)));
-     
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MateriaScreen(materia)));
+
     // if (materiaRet != null) {
     //   print(materiaRet.id);
     //   if (materiaRet.id == null)
     //     await materiaDAO.inserirMateria(materiaRet);
     //   else
     //     await materiaDAO.alterarMateria(materiaRet);
-      updateList();
+    updateList();
   }
 }
